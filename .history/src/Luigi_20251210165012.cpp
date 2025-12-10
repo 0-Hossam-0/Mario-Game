@@ -1,21 +1,25 @@
-#include "../include/Mario.h"
+#include "../include/Luigi.h"
 #include "../include/TextureUtils.h"
 #include <cstdlib>
 #include <iostream>
 
-Mario* Mario::instance = nullptr;
+Luigi* Luigi::instance = nullptr;
 
-Mario::Mario(float startX, float startY)
-    : Player(startX, startY, 80, 80, "./assets/Mario/mario.png")
+Luigi::Luigi(float startX, float startY)
+    : Player(startX, startY, 80, 80, "./assets/Luigi/luigi.png")
 {
+  speed = 6.0f;        
+  jumpStrength = 16.0f; 
+  
   idleTexture = textureID; 
-  moveTexture1 = TextureUtils::loadTexture("./assets/Mario/mario_move1.gif");
-  moveTexture2 = TextureUtils::loadTexture("./assets/Mario/mario_move2.gif");
-  speed = 6.0f;
-  jumpStrength = 16.0f;
-  jumpTexture = TextureUtils::loadTexture("./assets/Mario/mario_jump.png");
-  jumpTexture1 = TextureUtils::loadTexture("./assets/Mario/mario_jump_1.png");
-  deadTexture = TextureUtils::loadTexture("./assets/Mario/mario_dead.png");
+  moveTexture1 = TextureUtils::loadTexture("./assets/Luigi/luigi_move.png");
+  moveTexture2 = idleTexture; 
+  
+  jumpTexture = TextureUtils::loadTexture("./assets/Luigi/luigi_jump.png");
+  jumpTexture1 = jumpTexture; 
+  
+  // ADDED: Load Dead Texture
+  deadTexture = TextureUtils::loadTexture("./assets/Luigi/luigi_dead.png");
   
   isMoving = false;
   facingRight = true;
@@ -23,48 +27,55 @@ Mario::Mario(float startX, float startY)
   frameCounter = 0;
   enemy = nullptr;
   
+  int screenWidth = glutGet(GLUT_SCREEN_WIDTH);
   int screenHeight = glutGet(GLUT_SCREEN_HEIGHT);
+  if (screenWidth == 0) screenWidth = 800;   
   if (screenHeight == 0) screenHeight = 600; 
-  initHUD(20, screenHeight - 90, "./assets/Mario/mario.png", 3, 0);
+  
+  initHUD(screenWidth - 150, screenHeight - 90, "./assets/Luigi/luigi.png", 3, 0);
 }
 
-Mario* Mario::getInstance(float startX, float startY)
+Luigi* Luigi::getInstance(float startX, float startY)
 {
-  if (instance == nullptr) instance = new Mario(startX, startY);
+  if (instance == nullptr) instance = new Luigi(startX, startY);
   return instance;
 }
 
-void Mario::destroyInstance()
+void Luigi::destroyInstance()
 {
   if (instance != nullptr)
   {
-    if (instance->moveTexture1 != 0) glDeleteTextures(1, &instance->moveTexture1);
-    if (instance->moveTexture2 != 0) glDeleteTextures(1, &instance->moveTexture2);
+    if (instance->moveTexture1 != 0 && instance->moveTexture1 != instance->idleTexture)
+      glDeleteTextures(1, &instance->moveTexture1);
+    if (instance->moveTexture2 != 0 && instance->moveTexture2 != instance->idleTexture)
+      glDeleteTextures(1, &instance->moveTexture2);
     if (instance->jumpTexture != 0) glDeleteTextures(1, &instance->jumpTexture);
-    if (instance->jumpTexture1 != 0) glDeleteTextures(1, &instance->jumpTexture1);
+    
+    // ADDED: Cleanup dead texture
     if (instance->deadTexture != 0) glDeleteTextures(1, &instance->deadTexture);
     
     for (Fireball* fb : instance->fireballs) delete fb;
     instance->fireballs.clear();
-
+    
     delete instance;
     instance = nullptr;
   }
 }
 
-void Mario::draw()
+void Luigi::draw()
 {
   GLuint currentTexture;
   bool flipHorizontal = false;
   
+  // ADDED: Check if Dead
   if (getLives() <= 0)
   {
       currentTexture = deadTexture;
-      if (!facingRight) flipHorizontal = true; 
+      if (!facingRight) flipHorizontal = true;
   }
   else if (isJumping)
   {
-      if (velocityY > 16.5f) currentTexture = jumpTexture1;
+      if (velocityY > 15.5f) currentTexture = jumpTexture1;
       else currentTexture = jumpTexture;
       if (!facingRight) flipHorizontal = true;
   }
@@ -99,14 +110,16 @@ void Mario::draw()
       glTexCoord2f(0, 0); glVertex2f(x, y + height);
   }
   glEnd();
-
   glDisable(GL_TEXTURE_2D);
+  
   drawHUD();
 
-  for (Fireball* fb : fireballs) fb->draw();
+  for (Fireball* fb : fireballs) {
+      fb->draw();
+  }
 }
 
-void Mario::update()
+void Luigi::update()
 {
     isMoving = false;
     Player::update();
@@ -122,7 +135,7 @@ void Mario::update()
     }
 }
 
-void Mario::move(float dx, float dy, float &oldX, float &oldY)
+void Luigi::move(float dx, float dy, float &oldX, float &oldY)
 {
   if (dx > 0) facingRight = true;
   if (dx < 0) facingRight = false;
@@ -151,26 +164,24 @@ void Mario::move(float dx, float dy, float &oldX, float &oldY)
   }
 }
 
-void Mario::jump()
+void Luigi::jump()
 {
     bool wasOnGround = isOnGround;
     Player::jump();
     if (wasOnGround && isJumping) {
-        // CHANGED
-        Player::playSound("./assets/Sounds/small-jump.mp3");
+        system("gst-launch-1.0 filesrc location=./assets/Sounds/small-jump.mp3 ! decodebin ! autoaudiosink &");
     }
 }
 
-void Mario::setFacingRight(bool facing)
+void Luigi::setFacingRight(bool facing)
 {
     facingRight = facing;
 }
 
-void Mario::shootFireball()
+void Luigi::shootFireball()
 {
     float spawnX = facingRight ? x + width : x - 20; 
     float spawnY = y + height / 2;
     fireballs.push_back(new Fireball(spawnX, spawnY, facingRight));
-    // CHANGED
-    Player::playSound("./assets/Sounds/smw_fireball.wav");
+    system("gst-launch-1.0 filesrc location=./assets/Sounds/fireball.wav ! decodebin ! autoaudiosink &");
 }

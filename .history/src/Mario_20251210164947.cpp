@@ -11,10 +11,14 @@ Mario::Mario(float startX, float startY)
   idleTexture = textureID; 
   moveTexture1 = TextureUtils::loadTexture("./assets/Mario/mario_move1.gif");
   moveTexture2 = TextureUtils::loadTexture("./assets/Mario/mario_move2.gif");
+  
   speed = 6.0f;
   jumpStrength = 16.0f;
+  
   jumpTexture = TextureUtils::loadTexture("./assets/Mario/mario_jump.png");
   jumpTexture1 = TextureUtils::loadTexture("./assets/Mario/mario_jump_1.png");
+  
+  // ADDED: Load Dead Texture
   deadTexture = TextureUtils::loadTexture("./assets/Mario/mario_dead.png");
   
   isMoving = false;
@@ -25,6 +29,7 @@ Mario::Mario(float startX, float startY)
   
   int screenHeight = glutGet(GLUT_SCREEN_HEIGHT);
   if (screenHeight == 0) screenHeight = 600; 
+  
   initHUD(20, screenHeight - 90, "./assets/Mario/mario.png", 3, 0);
 }
 
@@ -42,6 +47,8 @@ void Mario::destroyInstance()
     if (instance->moveTexture2 != 0) glDeleteTextures(1, &instance->moveTexture2);
     if (instance->jumpTexture != 0) glDeleteTextures(1, &instance->jumpTexture);
     if (instance->jumpTexture1 != 0) glDeleteTextures(1, &instance->jumpTexture1);
+    
+    // ADDED: Cleanup dead texture
     if (instance->deadTexture != 0) glDeleteTextures(1, &instance->deadTexture);
     
     for (Fireball* fb : instance->fireballs) delete fb;
@@ -57,9 +64,11 @@ void Mario::draw()
   GLuint currentTexture;
   bool flipHorizontal = false;
   
+  // ADDED: Check if Dead (Lives <= 0)
   if (getLives() <= 0)
   {
       currentTexture = deadTexture;
+      // Usually dead sprites shouldn't flip, or keep last direction
       if (!facingRight) flipHorizontal = true; 
   }
   else if (isJumping)
@@ -101,9 +110,12 @@ void Mario::draw()
   glEnd();
 
   glDisable(GL_TEXTURE_2D);
+  
   drawHUD();
 
-  for (Fireball* fb : fireballs) fb->draw();
+  for (Fireball* fb : fireballs) {
+      fb->draw();
+  }
 }
 
 void Mario::update()
@@ -156,8 +168,7 @@ void Mario::jump()
     bool wasOnGround = isOnGround;
     Player::jump();
     if (wasOnGround && isJumping) {
-        // CHANGED
-        Player::playSound("./assets/Sounds/small-jump.mp3");
+        system("gst-launch-1.0 filesrc location=./assets/Sounds/small-jump.mp3 ! decodebin ! autoaudiosink &");
     }
 }
 
@@ -171,6 +182,5 @@ void Mario::shootFireball()
     float spawnX = facingRight ? x + width : x - 20; 
     float spawnY = y + height / 2;
     fireballs.push_back(new Fireball(spawnX, spawnY, facingRight));
-    // CHANGED
-    Player::playSound("./assets/Sounds/smw_fireball.wav");
+    system("gst-launch-1.0 filesrc location=./assets/Sounds/fireball.wav ! decodebin ! autoaudiosink &");
 }

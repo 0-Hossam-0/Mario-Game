@@ -41,13 +41,15 @@ public:
     void drawHUD();
     void addScore(int points);
     
+    // CHANGED: loseLife is now virtual so we can override behavior if needed, 
+    // but we will implement the sound directly in the base class.
     virtual void loseLife(); 
     void gainLife();
     int getScore() const;
     int getLives() const;
     
-    // CHANGED: Static helper to play sound on Windows
-    static void playSound(const char* path); 
+    // Helper to play sound
+    void playDamageSound(); 
 
     // Getters/Setters
     float getX() const;
@@ -59,5 +61,6 @@ public:
     void setPos(float newX, float newY);
     void setHUDPos(float x, float y);
     
+    // Map bounds checking helpers
     float getTopY() const { return y + height; }
 };

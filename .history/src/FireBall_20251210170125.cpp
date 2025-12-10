@@ -2,6 +2,7 @@
 #include "../include/Map.h"
 #include "../include/Player.h" 
 #include <iostream>
+#include <cstdlib> // Added for system()
 
 Fireball::Fireball(float startX, float startY, bool directionRight) {
     x = startX;
@@ -14,6 +15,7 @@ Fireball::Fireball(float startX, float startY, bool directionRight) {
     velocityX = facingRight ? MOVE_SPEED : -MOVE_SPEED;
     velocityY = -2.0f; 
 
+    // Texture path
     textureID = TextureUtils::loadTexture("./assets/Maps/fireball.gif"); 
 }
 
@@ -39,7 +41,7 @@ void Fireball::update(Player* enemy) {
     velocityY -= GRAVITY;
     y += velocityY;
 
-    // 2. Map Collision
+    // 2. Map Collision (Bounce)
     float groundLevel = 145.0f;
     bool hitGround = false;
 
@@ -67,12 +69,17 @@ void Fireball::update(Player* enemy) {
         velocityY = BOUNCE_FORCE;
     }
 
-    // 3. Enemy Collision
+    // 3. Enemy Collision (Damage)
     if (enemy != nullptr && checkCollision(enemy)) {
+        // Deal damage (this triggers life-lost.mp3 inside Player class)
         enemy->loseLife();
+        
+        // Destroy fireball
         active = false;
         
-        // CHANGED: Use Player::playSound
+        // CHANGED: Play smw_fireball.wav on impact
+        system("gst-launch-1.0 filesrc location=./assets/Sounds/smw_fireball.wav ! decodebin ! autoaudiosink &");
+        
         return; 
     }
 

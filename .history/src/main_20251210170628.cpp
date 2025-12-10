@@ -408,43 +408,4 @@ void specialKeysUp(int key, int x, int y)
         switch (key) {
         case GLUT_KEY_LEFT: luigi->setKeyState('a', false); break;
         case GLUT_KEY_RIGHT: luigi->setKeyState('d', false); break;
-        case GLUT_KEY_UP: luigi->setKeyState('w', false); break;
-        case GLUT_KEY_DOWN: luigi->setKeyState('s', false); break;
-        }
-    }
-}
-
-void cleanup()
-{
-    Mario::destroyInstance();
-    Luigi::destroyInstance();
-    Map::destroyInstance();
-    if (mainMenu) delete mainMenu;
-}
-
-int main(int argc, char **argv)
-{
-    glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
-    glutInitWindowSize(800, 600);
-    glutCreateWindow("Mario Game");
-    glutFullScreen();
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    int w = glutGet(GLUT_SCREEN_WIDTH);
-    int h = glutGet(GLUT_SCREEN_HEIGHT);
-    mainMenu = new Menu(w, h);
-    mario = nullptr;
-    luigi = nullptr;
-    gameMap = nullptr;
-    glutDisplayFunc(display);
-    glutIdleFunc(display); 
-    glutReshapeFunc(Map::handleReshape);
-    glutKeyboardFunc(keyboard);
-    glutKeyboardUpFunc(keyboardUp);
-    glutSpecialFunc(specialKeys);
-    glutSpecialUpFunc(specialKeysUp);
-    atexit(cleanup);
-    glutMainLoop();
-    return 0;
-}
+        case GLUT_KEY_UP: luigi->

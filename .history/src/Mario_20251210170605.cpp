@@ -172,5 +172,5 @@ void Mario::shootFireball()
     float spawnY = y + height / 2;
     fireballs.push_back(new Fireball(spawnX, spawnY, facingRight));
     // CHANGED
-    Player::playSound("./assets/Sounds/smw_fireball.wav");
+    Player::playSound("./assets/Sounds/fireball.wav");
 }

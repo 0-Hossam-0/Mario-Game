@@ -439,12 +439,4 @@ int main(int argc, char **argv)
     gameMap = nullptr;
     glutDisplayFunc(display);
     glutIdleFunc(display); 
-    glutReshapeFunc(Map::handleReshape);
-    glutKeyboardFunc(keyboard);
-    glutKeyboardUpFunc(keyboardUp);
-    glutSpecialFunc(specialKeys);
-    glutSpecialUpFunc(specialKeysUp);
-    atexit(cleanup);
-    glutMainLoop();
-    return 0;
-}
+    glutReshapeFunc(Map::handle

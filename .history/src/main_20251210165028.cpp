@@ -15,7 +15,9 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "../include/stb_image.h"
 
-// ... GLOBAL OBJECTS ...
+// ------------------------------
+// GLOBAL OBJECTS
+// ------------------------------
 Mario *mario;
 Luigi *luigi;
 Map *gameMap;
@@ -23,12 +25,17 @@ Menu *mainMenu;
 
 enum GameState
 {
-    STATE_MENU, STATE_INTRO, STATE_GAME, STATE_PAUSED, STATE_GAME_OVER
+    STATE_MENU,
+    STATE_INTRO, 
+    STATE_GAME,
+    STATE_PAUSED,
+    STATE_GAME_OVER
 };
 
 GameState currentState = STATE_MENU;
 GameState previousState = STATE_MENU;
 int gameMode = 0; 
+
 int winnerID = 0; 
 int lastTime = 0;
 float deltaTime = 0.0f;
@@ -37,6 +44,7 @@ float matchElapsed = 0.0f;
 bool matchTimerActive = false;
 bool hurryUpSoundPlayed = false;
 
+// Intro animation variables
 bool isIntroActive = false;
 float introProgress = 0.0f;  
 float introDuration = 6.0f;  
@@ -62,20 +70,18 @@ void drawText(float x, float y, const std::string &text, void *font = GLUT_BITMA
 
 void playHurryUpSound()
 {
-    // CHANGED
-    Player::playSound("./assets/Sounds/hurry-up.mp3");
+    system("gst-launch-1.0 filesrc location=./assets/Sounds/hurry-up.mp3 ! decodebin ! autoaudiosink &");
 }
 
 void playPauseSound()
 {
-    // CHANGED
-    Player::playSound("./assets/Sounds/pause.mp3");
+    system("gst-launch-1.0 filesrc location=./assets/Sounds/pause.mp3 ! decodebin ! autoaudiosink &");
 }
 
 void playDeathSound()
 {
-    // CHANGED
-    Player::playSound("./assets/Sounds/life-lost.mp3");
+    // CHANGED: Use the life-lost.mp3 provided
+    system("gst-launch-1.0 filesrc location=./assets/Sounds/life-lost.mp3 ! decodebin ! autoaudiosink &");
 }
 
 void startPvPMatch()
@@ -107,8 +113,10 @@ void startPvPMatch()
 
     int currentWidth = glutGet(GLUT_WINDOW_WIDTH);
     if (currentWidth == 0) currentWidth = 800; 
+
     marioTargetX = 100.0f;                
     luigiTargetX = currentWidth - 100.0f; 
+
     marioStartX = -100.0f;               
     luigiStartX = currentWidth + 100.0f; 
 
@@ -125,8 +133,7 @@ void startPvPMatch()
     mario->setHUDPos(marioHUDStartX, screenHeight - 90);
     luigi->setHUDPos(luigiHUDStartX, screenHeight - 90);
 
-    // CHANGED
-    Player::playSound("./assets/Sounds/castle-clear.mp3");
+    system("gst-launch-1.0 filesrc location=./assets/Sounds/castle-clear.mp3 ! decodebin ! autoaudiosink &");
 
     lastTime = glutGet(GLUT_ELAPSED_TIME);
     currentState = STATE_INTRO;
@@ -156,6 +163,7 @@ void drawGameOverScreen()
     float centerY = screenHeight / 2.0f;
 
     drawText(centerX - 60, centerY + 30, winText, font);
+
     glColor3f(1.0f, 1.0f, 1.0f);
     drawText(centerX - 80, centerY - 20, "Press ENTER to Try Again", GLUT_BITMAP_HELVETICA_18);
     drawText(centerX - 60, centerY - 50, "Press ESC to Quit", GLUT_BITMAP_HELVETICA_18);
@@ -178,8 +186,10 @@ void drawPauseMenu()
     glColor3f(1.0f, 1.0f, 1.0f); 
     std::string pausedText = "PAUSED";
     void *font = GLUT_BITMAP_TIMES_ROMAN_24;
+
     float x = (screenWidth - 70) / 2.0f; 
     float y = screenHeight / 2.0f;
+
     drawText(x, y, pausedText, font);
     drawText(x - 30, y - 30, "Press P to Resume", GLUT_BITMAP_HELVETICA_18);
 }
@@ -199,6 +209,7 @@ void drawCentralTimer()
 
     int screenWidth = glutGet(GLUT_WINDOW_WIDTH);
     int screenHeight = glutGet(GLUT_WINDOW_HEIGHT);
+    
     float x = (screenWidth - 50) / 2.0f;
     float y = screenHeight - 40; 
 
@@ -265,6 +276,7 @@ void display()
         if (gameMap) gameMap->draw(zoomScale);
         if (mario) mario->draw();
         if (luigi) luigi->draw();
+
         glPopMatrix();
         if (gameMode == 0) drawCentralTimer();
     }
@@ -274,6 +286,7 @@ void display()
         deltaTime = (currentTime - lastTime) / 1000.0f; 
         lastTime = currentTime;
 
+        // CHECK WIN CONDITION
         if (gameMode == 0) { 
             if (mario != nullptr && mario->getLives() <= 0) {
                 winnerID = 2; // Luigi Wins
@@ -346,7 +359,9 @@ void keyboard(unsigned char key, int x, int y)
                 currentState = STATE_GAME;
             }
         }
-        else { mainMenu->handleInput(key); }
+        else {
+            mainMenu->handleInput(key);
+        }
     }
     else if (currentState == STATE_GAME)
     {
@@ -375,7 +390,9 @@ void keyboard(unsigned char key, int x, int y)
     }
     else if (currentState == STATE_GAME_OVER)
     {
-        if (key == 13) startPvPMatch();
+        if (key == 13) {
+            startPvPMatch();
+        }
     }
 }
 

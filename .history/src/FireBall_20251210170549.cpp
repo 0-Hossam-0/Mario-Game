@@ -73,6 +73,7 @@ void Fireball::update(Player* enemy) {
         active = false;
         
         // CHANGED: Use Player::playSound
+        Player::playSound("./assets/Sounds/smw_fireball.wav");
         return; 
     }
 

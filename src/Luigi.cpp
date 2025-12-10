@@ -10,25 +10,23 @@ Luigi::Luigi(float startX, float startY)
 {
   speed = 6.0f;        
   jumpStrength = 16.0f; 
-  
   idleTexture = textureID; 
   moveTexture1 = TextureUtils::loadTexture("./assets/Luigi/luigi_move.png");
   moveTexture2 = idleTexture; 
-  
   jumpTexture = TextureUtils::loadTexture("./assets/Luigi/luigi_jump.png");
   jumpTexture1 = jumpTexture; 
+  deadTexture = TextureUtils::loadTexture("./assets/Luigi/luigi_dead.png");
   
   isMoving = false;
   facingRight = true;
   animationFrame = 0;
   frameCounter = 0;
-  enemy = nullptr; // Init enemy
+  enemy = nullptr;
   
   int screenWidth = glutGet(GLUT_SCREEN_WIDTH);
   int screenHeight = glutGet(GLUT_SCREEN_HEIGHT);
   if (screenWidth == 0) screenWidth = 800;   
   if (screenHeight == 0) screenHeight = 600; 
-  
   initHUD(screenWidth - 150, screenHeight - 90, "./assets/Luigi/luigi.png", 3, 0);
 }
 
@@ -47,8 +45,8 @@ void Luigi::destroyInstance()
     if (instance->moveTexture2 != 0 && instance->moveTexture2 != instance->idleTexture)
       glDeleteTextures(1, &instance->moveTexture2);
     if (instance->jumpTexture != 0) glDeleteTextures(1, &instance->jumpTexture);
+    if (instance->deadTexture != 0) glDeleteTextures(1, &instance->deadTexture);
     
-    // Clean up fireballs
     for (Fireball* fb : instance->fireballs) delete fb;
     instance->fireballs.clear();
     
@@ -62,7 +60,12 @@ void Luigi::draw()
   GLuint currentTexture;
   bool flipHorizontal = false;
   
-  if (isJumping)
+  if (getLives() <= 0)
+  {
+      currentTexture = deadTexture;
+      if (!facingRight) flipHorizontal = true;
+  }
+  else if (isJumping)
   {
       if (velocityY > 15.5f) currentTexture = jumpTexture1;
       else currentTexture = jumpTexture;
@@ -100,13 +103,9 @@ void Luigi::draw()
   }
   glEnd();
   glDisable(GL_TEXTURE_2D);
-  
   drawHUD();
 
-  // ADDED: Draw Fireballs
-  for (Fireball* fb : fireballs) {
-      fb->draw();
-  }
+  for (Fireball* fb : fireballs) fb->draw();
 }
 
 void Luigi::update()
@@ -114,7 +113,6 @@ void Luigi::update()
     isMoving = false;
     Player::update();
 
-    // ADDED: Update Fireballs and check collision with ENEMY (Mario)
     for (int i = 0; i < fireballs.size(); i++) {
         fireballs[i]->update(enemy);
         
@@ -144,7 +142,6 @@ void Luigi::move(float dx, float dy, float &oldX, float &oldY)
         {
           animationFrame = (animationFrame == 0) ? 1 : 0;
           frameCounter = 0;
-          // Footstep sounds logic
         }
       }
       else
@@ -161,7 +158,8 @@ void Luigi::jump()
     bool wasOnGround = isOnGround;
     Player::jump();
     if (wasOnGround && isJumping) {
-        system("gst-launch-1.0 filesrc location=./assets/Sounds/small-jump.mp3 ! decodebin ! autoaudiosink &");
+        // CHANGED
+        Player::playSound("./assets/Sounds/small-jump.mp3");
     }
 }
 
@@ -170,11 +168,11 @@ void Luigi::setFacingRight(bool facing)
     facingRight = facing;
 }
 
-// ADDED: Shooting
 void Luigi::shootFireball()
 {
     float spawnX = facingRight ? x + width : x - 20; 
     float spawnY = y + height / 2;
     fireballs.push_back(new Fireball(spawnX, spawnY, facingRight));
-    system("gst-launch-1.0 filesrc location=./assets/Sounds/fireball.wav ! decodebin ! autoaudiosink &");
+    // CHANGED
+    Player::playSound("./assets/Sounds/smw_fireball.wav");
 }
