@@ -24,12 +24,16 @@ protected:
     bool keyStates[256];
     HUD* hud;
 
+    // Fireball cooldown
+    float shootCooldown;
+    float shootTimer;
+
 public:
     Player(float startX, float startY, float w, float h, const char* imagePath);
     virtual ~Player();
 
     virtual void draw();
-    virtual void update();
+    virtual void update(float deltaTime);
     virtual void move(float dx, float dy, float &oldX, float &oldY);
     virtual void jump();
     

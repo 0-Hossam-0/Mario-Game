@@ -83,6 +83,11 @@ void startPvPMatch()
     int screenWidth = glutGet(GLUT_WINDOW_WIDTH);
     int screenHeight = glutGet(GLUT_WINDOW_HEIGHT);
 
+    int oldMarioScore = 0;
+    if (mario) oldMarioScore = mario->getScore();
+    int oldLuigiScore = 0;
+    if (luigi) oldLuigiScore = luigi->getScore();
+
     Mario::destroyInstance();
     Luigi::destroyInstance();
 
@@ -92,6 +97,9 @@ void startPvPMatch()
 
     mario = Mario::getInstance(100, 145);
     luigi = Luigi::getInstance(200, 145);
+
+    mario->addScore(oldMarioScore);
+    luigi->addScore(oldLuigiScore);
 
     mario->setEnemy(luigi);
     luigi->setEnemy(mario);
@@ -301,8 +309,8 @@ void display()
         }
 
         if (gameMap) gameMap->draw();
-        if (mario) { mario->update(); mario->draw(); }
-        if (gameMode == 0 && luigi) { luigi->update(); luigi->draw(); }
+        if (mario) { mario->update(deltaTime); mario->draw(); }
+        if (gameMode == 0 && luigi) { luigi->update(deltaTime); luigi->draw(); }
         if (gameMode == 0) drawCentralTimer();
     }
     else if (currentState == STATE_PAUSED)

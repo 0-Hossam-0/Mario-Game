@@ -16,6 +16,7 @@ private:
     bool active;
     bool facingRight;
     GLuint textureID;
+    Player* owner; // The player who shot the fireball
 
     // Physics constants
     const float GRAVITY = 0.5f;
@@ -23,7 +24,7 @@ private:
     const float MOVE_SPEED = 9.0f;
 
 public:
-    Fireball(float startX, float startY, bool directionRight);
+    Fireball(Player* owner, float startX, float startY, bool directionRight);
     
     void update(Player* enemy); // Updated to take enemy
     void draw();

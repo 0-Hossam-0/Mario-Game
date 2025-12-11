@@ -3,7 +3,8 @@
 #include "../include/Player.h" 
 #include <iostream>
 
-Fireball::Fireball(float startX, float startY, bool directionRight) {
+Fireball::Fireball(Player* owner, float startX, float startY, bool directionRight) {
+    this->owner = owner;
     x = startX;
     y = startY;
     width = 20.0f;
@@ -69,6 +70,9 @@ void Fireball::update(Player* enemy) {
 
     // 3. Enemy Collision
     if (enemy != nullptr && checkCollision(enemy)) {
+        if (owner) {
+            owner->addScore(100);
+        }
         enemy->loseLife();
         active = false;
         

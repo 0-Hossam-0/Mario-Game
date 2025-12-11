@@ -30,6 +30,10 @@ Player::Player(float startX, float startY, float w, float h, const char *imagePa
   isOnGround = true; 
   isSprinting = false;
   
+  // Cooldown
+  shootCooldown = 0.26f; // 0.26 second cooldown
+  shootTimer = 0.0f;
+
   for(int i=0; i<256; i++) keyStates[i] = false;
 }
 
@@ -92,8 +96,12 @@ void Player::processInput()
     if (keyStates['w'] || keyStates['W']) jump();
 }
 
-void Player::update()
+void Player::update(float deltaTime)
 {
+  if (shootTimer > 0) {
+    shootTimer -= deltaTime;
+  }
+
   processInput();
   velocityY -= gravity;
   float oldX = x;

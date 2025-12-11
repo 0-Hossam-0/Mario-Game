@@ -108,10 +108,10 @@ void Luigi::draw()
   for (Fireball* fb : fireballs) fb->draw();
 }
 
-void Luigi::update()
+void Luigi::update(float deltaTime)
 {
     isMoving = false;
-    Player::update();
+    Player::update(deltaTime);
 
     for (int i = 0; i < fireballs.size(); i++) {
         fireballs[i]->update(enemy);
@@ -170,9 +170,12 @@ void Luigi::setFacingRight(bool facing)
 
 void Luigi::shootFireball()
 {
-    float spawnX = facingRight ? x + width : x - 20; 
-    float spawnY = y + height / 2;
-    fireballs.push_back(new Fireball(spawnX, spawnY, facingRight));
-    // CHANGED
-    Player::playSound("./assets/Sounds/smw_fireball.wav");
+    if (shootTimer <= 0) {
+        float spawnX = facingRight ? x + width : x - 20; 
+        float spawnY = y + height / 2;
+        fireballs.push_back(new Fireball(this, spawnX, spawnY, facingRight));
+        // CHANGED
+        Player::playSound("./assets/Sounds/smw_fireball.wav");
+        shootTimer = shootCooldown;
+    }
 }

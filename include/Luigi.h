@@ -29,7 +29,7 @@ public:
     static Luigi* getInstance(float startX, float startY);
     static void destroyInstance();
 
-    void update() override;
+    void update(float deltaTime) override;
     void draw() override;
     void move(float dx, float dy, float &oldX, float &oldY) override;
     void jump() override;
