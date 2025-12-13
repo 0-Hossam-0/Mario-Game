@@ -12,11 +12,7 @@ INCLUDE_DIR = include
 TARGET = game.exe
 
 # Source files
-# ADDED: Star.cpp is now included
-SOURCES = $(SRC_DIR)/main.cpp $(SRC_DIR)/Player.cpp $(SRC_DIR)/Mario.cpp \
-          $(SRC_DIR)/Luigi.cpp $(SRC_DIR)/Map.cpp $(SRC_DIR)/Platform.cpp \
-          $(SRC_DIR)/HUD.cpp $(SRC_DIR)/Menu.cpp $(SRC_DIR)/Fireball.cpp \
-          $(SRC_DIR)/Bomb.cpp $(SRC_DIR)/Star.cpp
+SOURCES = $(SRC_DIR)/main.cpp $(SRC_DIR)/Player.cpp $(SRC_DIR)/Mario.cpp $(SRC_DIR)/Luigi.cpp $(SRC_DIR)/Map.cpp $(SRC_DIR)/Platform.cpp $(SRC_DIR)/HUD.cpp $(SRC_DIR)/Menu.cpp $(SRC_DIR)/Fireball.cpp
 
 # Default target
 all: $(TARGET)
@@ -31,7 +27,7 @@ run: $(TARGET)
 
 # Clean build artifacts
 clean:
-	if exist $(TARGET) del $(TARGET)
+	del $(TARGET)
 
 # Rebuild everything
 rebuild: clean all

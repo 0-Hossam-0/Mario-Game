@@ -1,21 +1,24 @@
 # Compiler and flags
 CXX = g++
 CXXFLAGS = -I./include
-# CHANGED: Added -lwinmm at the end
-LDFLAGS = -lopengl32 -lglu32 -lfreeglut -lwinmm
+
+# Windows OpenGL Linker Flags
+# -lfreeglut: Used instead of -lglut (requires FreeGLUT installed)
+# -lglu32: Utility library
+# -lopengl32: Core OpenGL library
+LDFLAGS = -lfreeglut -lglu32 -lopengl32
 
 # Directories
 SRC_DIR = src
 INCLUDE_DIR = include
 
-# Target executable
+# Target executable (Must end in .exe for Windows)
 TARGET = game.exe
 
 # Source files
-# ADDED: Star.cpp is now included
 SOURCES = $(SRC_DIR)/main.cpp $(SRC_DIR)/Player.cpp $(SRC_DIR)/Mario.cpp \
           $(SRC_DIR)/Luigi.cpp $(SRC_DIR)/Map.cpp $(SRC_DIR)/Platform.cpp \
-          $(SRC_DIR)/HUD.cpp $(SRC_DIR)/Menu.cpp $(SRC_DIR)/Fireball.cpp \
+          $(SRC_DIR)/HUD.cpp $(SRC_DIR)/Menu.cpp $(SRC_DIR)/FireBall.cpp \
           $(SRC_DIR)/Bomb.cpp $(SRC_DIR)/Star.cpp
 
 # Default target
@@ -27,9 +30,11 @@ $(TARGET): $(SOURCES)
 
 # Run the application
 run: $(TARGET)
-	./$(TARGET)
+	$(TARGET)
 
 # Clean build artifacts
+# Uses Windows 'del' command. 
+# 'if exist' prevents errors if the file is already deleted.
 clean:
 	if exist $(TARGET) del $(TARGET)
 

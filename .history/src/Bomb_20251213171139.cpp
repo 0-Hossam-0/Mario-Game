@@ -24,6 +24,7 @@ Bomb::Bomb(float startX, float startY)
 }
 
 
+
 void Bomb::pickUp(Player* p)
 {
     if (state == ON_GROUND || state == FALLING)

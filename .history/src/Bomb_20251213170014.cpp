@@ -23,6 +23,13 @@ Bomb::Bomb(float startX, float startY)
     textureExploding = TextureUtils::loadTexture("./assets/Maps/bomb_explosion.png");
 }
 
+ as TextureUtils::loadTexture might return shared ID.
+}Bomb::~Bomb()
+{
+    // Textures are managed by TextureUtils or global cleanup usually, 
+    // but individual delete here if unique? 
+    // For now assuming TextureUtils caches or we just leave it to OS cleanup on exit for simplicity
+    //
 
 void Bomb::pickUp(Player* p)
 {

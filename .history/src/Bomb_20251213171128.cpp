@@ -23,6 +23,10 @@ Bomb::Bomb(float startX, float startY)
     textureExploding = TextureUtils::loadTexture("./assets/Maps/bomb_explosion.png");
 }
 
+Bomb::~Bomb()
+{
+
+}
 
 void Bomb::pickUp(Player* p)
 {

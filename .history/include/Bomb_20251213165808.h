@@ -10,6 +10,7 @@ public:
     enum State { FALLING, ON_GROUND, HELD, THROWN, EXPLODING, DEAD };
 
     Bomb(float startX, float startY);
+    ~Bomb();
 
     void update(float deltaTime);
     void draw();

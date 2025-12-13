@@ -23,7 +23,6 @@ Bomb::Bomb(float startX, float startY)
     textureExploding = TextureUtils::loadTexture("./assets/Maps/bomb_explosion.png");
 }
 
-
 void Bomb::pickUp(Player* p)
 {
     if (state == ON_GROUND || state == FALLING)
