@@ -1,18 +1,18 @@
 # Compiler and flags
 CXX = g++
 CXXFLAGS = -I./include
-# CHANGED: Added -lwinmm at the end
-LDFLAGS = -lopengl32 -lglu32 -lfreeglut -lwinmm
+LDFLAGS = -lGL -lGLU -lglut -lm
 
 # Directories
 SRC_DIR = src
 INCLUDE_DIR = include
 
 # Target executable
-TARGET = game.exe
+TARGET = game
 
 # Source files
-SOURCES = $(SRC_DIR)/main.cpp $(SRC_DIR)/Player.cpp $(SRC_DIR)/Mario.cpp $(SRC_DIR)/Luigi.cpp $(SRC_DIR)/Map.cpp $(SRC_DIR)/Platform.cpp $(SRC_DIR)/HUD.cpp $(SRC_DIR)/Menu.cpp $(SRC_DIR)/Fireball.cpp
+# Source files
+SOURCES = $(SRC_DIR)/main.cpp $(SRC_DIR)/Player.cpp $(SRC_DIR)/Mario.cpp $(SRC_DIR)/Luigi.cpp $(SRC_DIR)/Map.cpp $(SRC_DIR)/Platform.cpp $(SRC_DIR)/HUD.cpp $(SRC_DIR)/Menu.cpp $(SRC_DIR)/FireBall.cpp $(SRC_DIR)/Bomb.cpp $(SRC_DIR)/Star.cpp
 
 # Default target
 all: $(TARGET)
@@ -27,7 +27,7 @@ run: $(TARGET)
 
 # Clean build artifacts
 clean:
-	del $(TARGET)
+	rm -f $(TARGET)
 
 # Rebuild everything
 rebuild: clean all

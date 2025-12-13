@@ -1,4 +1,4 @@
-#include "../include/Fireball.h"
+#include "../include/FireBall.h"
 #include "../include/Map.h"
 #include "../include/Player.h" 
 #include <iostream>

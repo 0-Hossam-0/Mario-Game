@@ -45,10 +45,15 @@ public:
     void gainLife();
     void setPos(float newX, float newY) { x = newX; y = newY; }
     
+    void setPowerUpTimer(float t) { powerUpTimer = t; }
+    
     // Getters
     int getLives() const;
     int getScore() const;
     bool isAlive() const;
+
+private:
+    float powerUpTimer;
 };
 
 #endif

@@ -73,25 +73,19 @@ void Menu::draw() {
 
     // Draw Options
     // Center text approximation: 1 VS 1 is about 60px wide
-    drawText(centerX - 40, centerY + 30, "1 VS 1", selectedOption == 0);
-    drawText(centerX - 40, centerY - 30, "CO-OP", selectedOption == 1);
+    drawText(centerX - 40, centerY, "1 VS 1", true);
     
     // Instructions
     glColor3f(1.0f, 1.0f, 1.0f);
-    const char* instr = "Use W/S to select, ENTER to start";
-    glRasterPos2f(centerX - 100, centerY - 150);
+    const char* instr = "Press ENTER to start";
+    glRasterPos2f(centerX - 60, centerY - 150);
     for (size_t i = 0; i < strlen(instr); i++) {
         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, instr[i]);
     }
 }
 
 void Menu::handleInput(unsigned char key) {
-    if (key == 'w' || key == 'W') {
-        selectedOption = 0;
-    }
-    if (key == 's' || key == 'S') {
-        selectedOption = 1;
-    }
+    // No selection needed anymore
 }
 
 int Menu::getSelectedOption() const {

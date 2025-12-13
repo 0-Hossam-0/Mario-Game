@@ -28,6 +28,13 @@ protected:
     float shootCooldown;
     float shootTimer;
 
+    // Invulnerability
+    float invulnerableTimer;
+
+    // Golden State
+    bool isGolden;
+    float goldenTimer;
+
 public:
     Player(float startX, float startY, float w, float h, const char* imagePath);
     virtual ~Player();
@@ -53,6 +60,10 @@ public:
     // CHANGED: Static helper to play sound on Windows
     static void playSound(const char* path); 
 
+    // Sudden Death Mode
+    static bool isSuddenDeathMode;
+    static void setSuddenDeathMode(bool active); 
+
     // Getters/Setters
     float getX() const;
     float getY() const;
@@ -64,4 +75,19 @@ public:
     void setHUDPos(float x, float y);
     
     float getTopY() const { return y + height; }
+    
+    virtual bool isFacingRight() const { return true; }
+
+    // Bomb interaction
+    void holdBomb(void* b) { heldBomb = b; } // Using void* to avoid circular include issues in header for now, or forward declare
+    void* getHeldBomb() const { return heldBomb; }
+    
+    bool isInvulnerable() const { return invulnerableTimer > 0.0f; }
+    
+    void activateGolden();
+    void updateGolden(float deltaTime);
+    bool getIsGolden() const { return isGolden; }
+
+protected:
+    void* heldBomb; // Stored as void* to avoid circular dependency complexity in this step, cast in cpp
 };

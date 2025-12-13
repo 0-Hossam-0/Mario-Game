@@ -16,6 +16,11 @@ Luigi::Luigi(float startX, float startY)
   jumpTexture = TextureUtils::loadTexture("./assets/Luigi/luigi_jump.png");
   jumpTexture1 = jumpTexture; 
   deadTexture = TextureUtils::loadTexture("./assets/Luigi/luigi_dead.png");
+  holdTexture = TextureUtils::loadTexture("./assets/Luigi/luigi_hold.png");
+  holdStandTexture = TextureUtils::loadTexture("./assets/Luigi/luigi_hold_stand.png");
+  
+  goldenTexture = TextureUtils::loadTexture("./assets/Luigi/luigi_golden.png");
+  goldenMoveTexture = TextureUtils::loadTexture("./assets/Luigi/luigi_hold_move_golden.png");
   
   isMoving = false;
   facingRight = true;
@@ -46,6 +51,8 @@ void Luigi::destroyInstance()
       glDeleteTextures(1, &instance->moveTexture2);
     if (instance->jumpTexture != 0) glDeleteTextures(1, &instance->jumpTexture);
     if (instance->deadTexture != 0) glDeleteTextures(1, &instance->deadTexture);
+    if (instance->holdTexture != 0) glDeleteTextures(1, &instance->holdTexture);
+    if (instance->holdStandTexture != 0) glDeleteTextures(1, &instance->holdStandTexture);
     
     for (Fireball* fb : instance->fireballs) delete fb;
     instance->fireballs.clear();
@@ -57,6 +64,16 @@ void Luigi::destroyInstance()
 
 void Luigi::draw()
 {
+  if (isInvulnerable() && !isGolden) {
+      // Flash every 0.1 seconds
+      int flash = (int)(invulnerableTimer * 10.0f);
+      if (flash % 2 == 0) {
+          drawHUD();
+          for (Fireball* fb : fireballs) fb->draw();
+          return; // Skip drawing sprite
+      }
+  }
+
   GLuint currentTexture;
   bool flipHorizontal = false;
   
@@ -67,18 +84,30 @@ void Luigi::draw()
   }
   else if (isJumping)
   {
-      if (velocityY > 15.5f) currentTexture = jumpTexture1;
-      else currentTexture = jumpTexture;
+      if (heldBomb != nullptr) {
+          currentTexture = holdTexture;
+      } else {
+          if (velocityY > 15.5f) currentTexture = jumpTexture1;
+          else currentTexture = jumpTexture;
+      }
       if (!facingRight) flipHorizontal = true;
   }
   else if (isMoving)
   {
-    currentTexture = (animationFrame == 0) ? moveTexture1 : moveTexture2;
+    if (heldBomb != nullptr) {
+        currentTexture = holdTexture;
+    } else {
+        currentTexture = (animationFrame == 0) ? moveTexture1 : moveTexture2;
+    }
     if (!facingRight) flipHorizontal = true;
   }
   else
   {
-    currentTexture = idleTexture;
+    if (heldBomb != nullptr) {
+        currentTexture = holdStandTexture;
+    } else {
+        currentTexture = idleTexture;
+    }
     if (!facingRight) flipHorizontal = true;
   }
   
@@ -158,8 +187,7 @@ void Luigi::jump()
     bool wasOnGround = isOnGround;
     Player::jump();
     if (wasOnGround && isJumping) {
-        // CHANGED
-        Player::playSound("./assets/Sounds/small-jump.mp3");
+        playJumpSound();
     }
 }
 
@@ -170,12 +198,22 @@ void Luigi::setFacingRight(bool facing)
 
 void Luigi::shootFireball()
 {
+    if (!isGolden) return;
     if (shootTimer <= 0) {
         float spawnX = facingRight ? x + width : x - 20; 
         float spawnY = y + height / 2;
         fireballs.push_back(new Fireball(this, spawnX, spawnY, facingRight));
-        // CHANGED
-        Player::playSound("./assets/Sounds/smw_fireball.wav");
+        playShootSound();
         shootTimer = shootCooldown;
     }
+}
+
+void Luigi::playJumpSound()
+{
+    Player::playSound("./assets/Sounds/small-jump.mp3");
+}
+
+void Luigi::playShootSound()
+{
+    Player::playSound("./assets/Sounds/smw_fireball.wav");
 }

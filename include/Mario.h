@@ -1,6 +1,6 @@
 #pragma once
 #include "Player.h"
-#include "Fireball.h"
+#include "FireBall.h"
 #include <vector>
 
 class Mario : public Player {
@@ -15,6 +15,14 @@ private:
     GLuint jumpTexture;
     GLuint jumpTexture1;
     GLuint deadTexture; // ADDED: Dead sprite texture
+    GLuint holdTexture;
+
+    GLuint holdStandTexture;
+
+    // Golden Textures
+    GLuint goldenIdleTexture;
+    GLuint goldenJumpTexture;
+    GLuint goldenMoveTexture;
 
     // Animation state
     bool isMoving;
@@ -35,7 +43,12 @@ public:
     void jump() override;
 
     void setFacingRight(bool facing);
+    bool isFacingRight() const override { return facingRight; }
     void shootFireball();
     
     void setEnemy(Player* p) { enemy = p; }
+    
+private:
+    void playJumpSound();
+    void playShootSound();
 };

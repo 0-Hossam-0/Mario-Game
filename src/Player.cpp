@@ -1,14 +1,20 @@
 #include "../include/Player.h"
 #include "../include/Map.h"
 #include "../include/TextureUtils.h"
-#include <windows.h> // Required for sound
-#include <mmsystem.h> // Required for sound
+// #include <windows.h> // REMOVED: Not compatible with Linux
+// #include <mmsystem.h> // REMOVED: Not compatible with Linux
 #include <string>
 #include <iostream>
 
 // ---------------------------------------------------------
 // PLAYER BASE CLASS IMPLEMENTATION
 // ---------------------------------------------------------
+
+bool Player::isSuddenDeathMode = false;
+
+void Player::setSuddenDeathMode(bool active) {
+    isSuddenDeathMode = active;
+}
 
 Player::Player(float startX, float startY, float w, float h, const char *imagePath)
 {
@@ -33,8 +39,13 @@ Player::Player(float startX, float startY, float w, float h, const char *imagePa
   // Cooldown
   shootCooldown = 0.26f; // 0.26 second cooldown
   shootTimer = 0.0f;
+  invulnerableTimer = 0.0f;
+  
+  isGolden = false;
+  goldenTimer = 0.0f;
 
   for(int i=0; i<256; i++) keyStates[i] = false;
+  heldBomb = nullptr;
 }
 
 Player::~Player()
@@ -46,19 +57,12 @@ Player::~Player()
   }
 }
 
-// CHANGED: Windows Native Sound Player
+// CHANGED: Stubbed for Linux
+// CHANGED: Linux Sound Player using gst-play-1.0
 void Player::playSound(const char* path)
 {
-    // We use mciSendString to play mp3/wav on Windows without external libraries
-    std::string cmd = "open \"" + std::string(path) + "\" type mpegvideo alias mySound";
-    // Close any previous instance (simple overlap prevention)
-    mciSendString("close mySound", NULL, 0, NULL);
-    
-    // Open the new file
-    mciSendString(cmd.c_str(), NULL, 0, NULL);
-    
-    // Play it
-    mciSendString("play mySound from 0 notify", NULL, 0, NULL);
+    std::string command = "gst-play-1.0 \"" + std::string(path) + "\" > /dev/null 2>&1 &";
+    system(command.c_str());
 }
 
 void Player::jump()
@@ -100,6 +104,10 @@ void Player::update(float deltaTime)
 {
   if (shootTimer > 0) {
     shootTimer -= deltaTime;
+  }
+  
+  if (invulnerableTimer > 0) {
+      invulnerableTimer -= deltaTime;
   }
 
   processInput();
@@ -166,11 +174,17 @@ void Player::addScore(int points)
 
 void Player::loseLife()
 {
+  if (invulnerableTimer > 0.0f) return;
+
   if (hud != nullptr) {
       if (hud->getLives() > 0) {
-          hud->loseLife();
-          // Use the new static method
-          playSound("./assets/Sounds/life-lost.mp3");
+          if (isSuddenDeathMode) {
+              hud->setLives(0); // Instant death
+          } else {
+              hud->loseLife();
+          }
+          invulnerableTimer = 2.0f; // 2 seconds invulnerability
+          Player::playSound("./assets/Sounds/mario-power-down-ringtone.mp3");
       }
   }
 }
@@ -243,4 +257,27 @@ void Player::setPos(float newX, float newY)
 void Player::setHUDPos(float x, float y)
 {
     if (hud != nullptr) hud->setPos(x, y);
+}
+
+void Player::activateGolden()
+{
+    isGolden = true;
+    goldenTimer = 10.0f; // 10 seconds duration
+    invulnerableTimer = 10.0f; // Also invulnerable
+    Player::playSound("./assets/Sounds/power-up.mp3");
+}
+
+void Player::updateGolden(float deltaTime)
+{
+    if (isGolden) {
+        goldenTimer -= deltaTime;
+        if (hud != nullptr) hud->setPowerUpTimer(goldenTimer);
+        
+        if (goldenTimer <= 0.0f) {
+            isGolden = false;
+            goldenTimer = 0.0f;
+            if (hud != nullptr) hud->setPowerUpTimer(0.0f);
+            Player::playSound("./assets/Sounds/mario-power-down-ringtone.mp3");
+        }
+    }
 }

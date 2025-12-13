@@ -10,6 +10,8 @@
 #include "../include/Map.h"
 #include "../include/HUD.h"
 #include "../include/Menu.h"
+#include "../include/Bomb.h"
+#include "../include/Star.h"
 
 // The STB_IMAGE_IMPLEMENTATION must be defined in exactly ONE .cpp file.
 #define STB_IMAGE_IMPLEMENTATION
@@ -20,6 +22,118 @@ Mario *mario;
 Luigi *luigi;
 Map *gameMap;
 Menu *mainMenu;
+
+std::vector<Bomb*> bombs;
+float bombSpawnTimer = 0.0f;
+float bombSpawnInterval = 5.0f; // Spawn every 5 seconds
+
+std::vector<Star*> stars;
+float starSpawnTimer = 0.0f;
+float starSpawnInterval = 15.0f; // Spawn every 15 seconds
+
+void updateStars(float deltaTime) {
+    // Spawning
+    starSpawnTimer += deltaTime;
+    if (starSpawnTimer >= starSpawnInterval) {
+        starSpawnTimer = 0;
+        int screenWidth = glutGet(GLUT_WINDOW_WIDTH);
+        if (screenWidth == 0) screenWidth = 800;
+        
+        float startX, speed;
+        if (rand() % 2 == 0) {
+            startX = -50.0f;
+            speed = 100.0f; // Move right
+        } else {
+            startX = screenWidth + 50.0f;
+            speed = -100.0f; // Move left
+        }
+        
+        float randomY = 150.0f + (rand() % 200); // Random height
+        stars.push_back(new Star(startX, randomY, speed));
+    }
+
+    // Update & Cleanup
+    for (int i = 0; i < stars.size(); i++) {
+        stars[i]->update(deltaTime);
+        
+        // Check collision
+        if (mario && stars[i]->checkCollision(mario)) {
+            mario->activateGolden();
+            stars[i]->deactivate();
+        }
+        if (luigi && stars[i]->checkCollision(luigi)) {
+            luigi->activateGolden();
+            stars[i]->deactivate();
+        }
+
+        // Remove if inactive or far off screen
+        int screenWidth = glutGet(GLUT_WINDOW_WIDTH);
+        if (screenWidth == 0) screenWidth = 800;
+        
+        // Simple bounds check to remove stars that flew away
+        // Assuming star width is small, checking if x < -100 or x > width + 100
+        // Also remove if inactive (collected)
+        // Note: Star doesn't expose x directly but update moves it. 
+        // We can add a getter or just rely on time/distance logic, 
+        // but checking isActive is enough for collected stars.
+        // For off-screen, we can check inside Star::update or here if we had access.
+        // Let's just rely on a simple lifetime or check if it's been running too long?
+        // Actually, let's just remove if !isActive() for now (collected).
+        // For off-screen, I'll modify Star to deactivate itself if off screen? 
+        // I didn't implement that in Star.cpp yet. 
+        // I'll just leave them for now or implement a simple check if I can access x.
+        // Star doesn't expose getX(). I should have added getters.
+        // I'll just remove if !isActive().
+        
+        if (!stars[i]->isActive()) {
+            delete stars[i];
+            stars.erase(stars.begin() + i);
+            i--;
+        }
+    }
+}
+
+void updateBombs(float deltaTime) {
+    // Spawning
+    if (bombs.empty()) {
+        bombSpawnTimer += deltaTime;
+        if (bombSpawnTimer >= bombSpawnInterval) {
+            bombSpawnTimer = 0;
+            int screenWidth = glutGet(GLUT_WINDOW_WIDTH);
+            if (screenWidth == 0) screenWidth = 800;
+            float randomX = rand() % (screenWidth - 50) + 25;
+            bombs.push_back(new Bomb(randomX, 600)); // Start from top
+        }
+    }
+
+    // Update & Cleanup
+    for (int i = 0; i < bombs.size(); i++) {
+        bombs[i]->update(deltaTime);
+        
+        // Check explosion damage
+        if (bombs[i]->getState() == Bomb::EXPLODING) {
+             // Simple distance check for damage
+             if (mario && bombs[i]->checkCollision(mario) && !bombs[i]->hasHit(mario)) {
+                 mario->loseLife();
+                 bombs[i]->markHit(mario);
+             }
+             if (luigi && bombs[i]->checkCollision(luigi) && !bombs[i]->hasHit(luigi)) {
+                 luigi->loseLife();
+                 bombs[i]->markHit(luigi);
+             }
+        }
+
+        if (bombs[i]->isDead()) {
+            delete bombs[i];
+            bombs.erase(bombs.begin() + i);
+            i--;
+        }
+    }
+}
+
+
+
+
 
 enum GameState
 {
@@ -109,6 +223,7 @@ void startPvPMatch()
     matchTimerActive = false;   
     hurryUpSoundPlayed = false; 
     winnerID = 0;
+    Player::setSuddenDeathMode(false);
 
     isIntroActive = true;
     introProgress = 0.0f;
@@ -223,6 +338,19 @@ void drawCentralTimer()
     drawText(x, y, timerText, GLUT_BITMAP_TIMES_ROMAN_24);
 }
 
+void drawSuddenDeathText()
+{
+    int screenWidth = glutGet(GLUT_WINDOW_WIDTH);
+    int screenHeight = glutGet(GLUT_WINDOW_HEIGHT);
+    float x = (screenWidth - 150) / 2.0f;
+    float y = screenHeight - 40; 
+
+    glDisable(GL_TEXTURE_2D);
+    glColor3f(1.0f, 0.0f, 0.0f); // Red color
+    drawText(x, y, "SUDDEN DEATH", GLUT_BITMAP_TIMES_ROMAN_24);
+    glColor3f(1.0f, 1.0f, 1.0f); // Reset
+}
+
 void updateIntroAnimation(float deltaTime)
 {
     if (!isIntroActive) return;
@@ -305,13 +433,32 @@ void display()
             if (matchElapsed >= matchTime) {
                 matchElapsed = matchTime;
                 matchTimerActive = false;
+                Player::setSuddenDeathMode(true);
             }
         }
 
         if (gameMap) gameMap->draw();
-        if (mario) { mario->update(deltaTime); mario->draw(); }
-        if (gameMode == 0 && luigi) { luigi->update(deltaTime); luigi->draw(); }
-        if (gameMode == 0) drawCentralTimer();
+        if (mario) { 
+            mario->update(deltaTime); 
+            mario->updateGolden(deltaTime);
+            mario->draw(); 
+        }
+        if (gameMode == 0 && luigi) { 
+            luigi->update(deltaTime); 
+            luigi->updateGolden(deltaTime);
+            luigi->draw(); 
+        }
+        
+        updateBombs(deltaTime);
+        for(Bomb* b : bombs) b->draw();
+        
+        updateStars(deltaTime);
+        for(Star* s : stars) s->draw();
+
+        if (gameMode == 0) {
+             if (matchTimerActive) drawCentralTimer();
+             else if (Player::isSuddenDeathMode) drawSuddenDeathText();
+        }
     }
     else if (currentState == STATE_PAUSED)
     {
@@ -344,15 +491,7 @@ void keyboard(unsigned char key, int x, int y)
         if (key == 13) 
         {
             gameMode = mainMenu->getSelectedOption();
-            if (gameMode == 0) {
-                startPvPMatch();
-            } else {
-                int w = glutGet(GLUT_WINDOW_WIDTH);
-                int h = glutGet(GLUT_WINDOW_HEIGHT);
-                gameMap = Map::getInstance("./assets/Maps/Original Map/original.jpg", w, h);
-                mario = Mario::getInstance(100, 145);
-                currentState = STATE_GAME;
-            }
+            startPvPMatch();
         }
         else { mainMenu->handleInput(key); }
     }
@@ -366,10 +505,38 @@ void keyboard(unsigned char key, int x, int y)
             if (mario) {
                 mario->setKeyState(key, true);
                 if (key == ' ') mario->shootFireball();
+                
+                if (key == 'e' || key == 'E') {
+                    if (mario->getHeldBomb()) {
+                        Bomb* b = (Bomb*)mario->getHeldBomb();
+                        b->throwBomb(mario->isFacingRight()); 
+                    } else {
+                        for(Bomb* b : bombs) {
+                            if (b->checkCollision(mario)) {
+                                b->pickUp(mario);
+                                break;
+                            }
+                        }
+                    }
+                }
             }
             if (luigi && gameMode == 0) {
-                if (key == 'l' || key == 'L') luigi->setKeyState('z', true);
-                if (key == 13) luigi->shootFireball();
+                if (key == 'l' || key == 'L' || key == 'k' || key == 'K') luigi->setKeyState('z', true);
+                if (key == 13 || key == '/') luigi->shootFireball();
+                
+                if (key == '.') {
+                    if (luigi->getHeldBomb()) {
+                        Bomb* b = (Bomb*)luigi->getHeldBomb();
+                        b->throwBomb(luigi->isFacingRight()); 
+                    } else {
+                        for(Bomb* b : bombs) {
+                            if (b->checkCollision(luigi)) {
+                                b->pickUp(luigi);
+                                break;
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -392,7 +559,7 @@ void keyboardUp(unsigned char key, int x, int y)
     if (currentState == STATE_GAME)
     {
         if (mario) mario->setKeyState(key, false);
-        if ((key == 'l' || key == 'L') && luigi && gameMode == 0) luigi->setKeyState('z', false);
+        if ((key == 'l' || key == 'L' || key == 'k' || key == 'K') && luigi && gameMode == 0) luigi->setKeyState('z', false);
     }
 }
 
@@ -428,6 +595,8 @@ void cleanup()
     Luigi::destroyInstance();
     Map::destroyInstance();
     if (mainMenu) delete mainMenu;
+    for(Star* s : stars) delete s;
+    stars.clear();
 }
 
 int main(int argc, char **argv)

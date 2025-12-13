@@ -74,6 +74,8 @@ HUD::HUD(float xPos, float yPos,
     
     // Load heart icon
     heartTexture = TextureUtils::loadTexture("./assets/Maps/heart.png");
+    
+    powerUpTimer = 0.0f;
 }
 
 // Destructor
@@ -117,6 +119,14 @@ void HUD::draw()
     // Draw Score (below hearts)
     std::string scoreText = "Score: " + std::to_string(score);
     drawText(x + iconSize + 10, y + 5, scoreText, GLUT_BITMAP_HELVETICA_18);
+
+    // Draw Power-Up Timer
+    if (powerUpTimer > 0.0f) {
+        glColor3f(1.0f, 1.0f, 0.0f); // Yellow color
+        std::string timerText = "Power: " + std::to_string((int)powerUpTimer + 1) + "s";
+        drawText(x + iconSize + 10, y - 15, timerText, GLUT_BITMAP_HELVETICA_18);
+        glColor3f(1.0f, 1.0f, 1.0f); // Reset color
+    }
 }
 
 // Update methods

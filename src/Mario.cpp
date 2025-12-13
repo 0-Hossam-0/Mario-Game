@@ -14,8 +14,12 @@ Mario::Mario(float startX, float startY)
   speed = 6.0f;
   jumpStrength = 16.0f;
   jumpTexture = TextureUtils::loadTexture("./assets/Mario/mario_jump.png");
-  jumpTexture1 = TextureUtils::loadTexture("./assets/Mario/mario_jump_1.png");
   deadTexture = TextureUtils::loadTexture("./assets/Mario/mario_dead.png");
+  holdStandTexture = TextureUtils::loadTexture("./assets/Mario/mario_hold_stand.png");
+  
+  goldenIdleTexture = TextureUtils::loadTexture("./assets/Mario/golden_mario.png");
+  goldenJumpTexture = TextureUtils::loadTexture("./assets/Mario/golden_mario_jump.png");
+  goldenMoveTexture = TextureUtils::loadTexture("./assets/Mario/golden_mario_moves.png");
   
   isMoving = false;
   facingRight = true;
@@ -43,6 +47,8 @@ void Mario::destroyInstance()
     if (instance->jumpTexture != 0) glDeleteTextures(1, &instance->jumpTexture);
     if (instance->jumpTexture1 != 0) glDeleteTextures(1, &instance->jumpTexture1);
     if (instance->deadTexture != 0) glDeleteTextures(1, &instance->deadTexture);
+    if (instance->holdTexture != 0) glDeleteTextures(1, &instance->holdTexture);
+    if (instance->holdStandTexture != 0) glDeleteTextures(1, &instance->holdStandTexture);
     
     for (Fireball* fb : instance->fireballs) delete fb;
     instance->fireballs.clear();
@@ -54,6 +60,16 @@ void Mario::destroyInstance()
 
 void Mario::draw()
 {
+  if (isInvulnerable() && !isGolden) {
+      // Flash every 0.1 seconds
+      int flash = (int)(invulnerableTimer * 10.0f);
+      if (flash % 2 == 0) {
+          drawHUD();
+          for (Fireball* fb : fireballs) fb->draw();
+          return; // Skip drawing sprite
+      }
+  }
+
   GLuint currentTexture;
   bool flipHorizontal = false;
   
@@ -64,18 +80,25 @@ void Mario::draw()
   }
   else if (isJumping)
   {
-      if (velocityY > 16.5f) currentTexture = jumpTexture1;
-      else currentTexture = jumpTexture;
+      currentTexture = jumpTexture;
       if (!facingRight) flipHorizontal = true;
   }
   else if (isMoving)
   {
-    currentTexture = (animationFrame == 0) ? moveTexture1 : moveTexture2;
+    if (heldBomb != nullptr) {
+        currentTexture = (animationFrame == 0) ? holdStandTexture : jumpTexture;
+    } else {
+        currentTexture = (animationFrame == 0) ? moveTexture1 : moveTexture2;
+    }
     if (!facingRight) flipHorizontal = true;
   }
   else
   {
-    currentTexture = idleTexture;
+    if (heldBomb != nullptr) {
+        currentTexture = holdStandTexture;
+    } else {
+        currentTexture = idleTexture;
+    }
     if (!facingRight) flipHorizontal = true;
   }
   
@@ -156,8 +179,7 @@ void Mario::jump()
     bool wasOnGround = isOnGround;
     Player::jump();
     if (wasOnGround && isJumping) {
-        // CHANGED
-        Player::playSound("./assets/Sounds/small-jump.mp3");
+        playJumpSound();
     }
 }
 
@@ -168,12 +190,22 @@ void Mario::setFacingRight(bool facing)
 
 void Mario::shootFireball()
 {
+    if (!isGolden) return;
     if (shootTimer <= 0) {
         float spawnX = facingRight ? x + width : x - 20; 
         float spawnY = y + height / 2;
         fireballs.push_back(new Fireball(this, spawnX, spawnY, facingRight));
-        // CHANGED
-        Player::playSound("./assets/Sounds/smw_fireball.wav");
+        playShootSound();
         shootTimer = shootCooldown;
     }
+}
+
+void Mario::playJumpSound()
+{
+    Player::playSound("./assets/Sounds/small-jump.mp3");
+}
+
+void Mario::playShootSound()
+{
+    Player::playSound("./assets/Sounds/smw_fireball.wav");
 }
