@@ -13,7 +13,7 @@ private:
     GLuint textureID;
     bool active;
     
-    // Bobbing animation
+    // bobbing animation
     float originalY;
     float bobTimer;
 

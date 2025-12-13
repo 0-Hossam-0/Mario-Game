@@ -1,7 +1,7 @@
 #include "../include/Platform.h"
 #include <iostream>
 
-// Constructor
+// constructor
 Platform::Platform(float startX, float startY, float w, float h, const char* texturePath)
 {
     x = startX;
@@ -9,7 +9,7 @@ Platform::Platform(float startX, float startY, float w, float h, const char* tex
     width = w;
     height = h;
     
-    // Load platform texture
+    // load platform texture
     textureID = TextureUtils::loadTexture(texturePath);
     
     if (textureID == 0)
@@ -18,7 +18,7 @@ Platform::Platform(float startX, float startY, float w, float h, const char* tex
     }
 }
 
-// Destructor
+// destructor
 Platform::~Platform()
 {
     if (textureID != 0)
@@ -27,14 +27,14 @@ Platform::~Platform()
     }
 }
 
-// Draw the platform
+// draw platform
 void Platform::draw()
 {
     if (textureID == 0)
     {
-        // Draw a brown rectangle if texture failed to load
+        // draw a brown rectangle if texture failed to load
         glDisable(GL_TEXTURE_2D);
-        glColor3f(0.6f, 0.4f, 0.2f); // Brown color
+        glColor3f(0.6f, 0.4f, 0.2f); // brown color
         glBegin(GL_QUADS);
         glVertex2f(x, y);
         glVertex2f(x + width, y);
@@ -44,27 +44,27 @@ void Platform::draw()
         return;
     }
     
-    // Draw 5 platform tiles side by side
+    // draw 5 platform tiles side by side
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, textureID);
     glColor3f(1.0f, 1.0f, 1.0f);
     
-    // Calculate the width of each tile
+    // calculate the width of each tile
     float tileWidth = width / 5.0f;
     
-    // Draw 5 tiles
+    // draw 5 tiles
     for (int i = 0; i < 5; i++)
     {
         float tileX = x + (i * tileWidth);
         
         glBegin(GL_QUADS);
-        glTexCoord2f(0, 1);  // Bottom-left
+        glTexCoord2f(0, 1);  // bottom left
         glVertex2f(tileX, y);
-        glTexCoord2f(1, 1);  // Bottom-right
+        glTexCoord2f(1, 1);  // bottom right
         glVertex2f(tileX + tileWidth, y);
-        glTexCoord2f(1, 0);  // Top-right
+        glTexCoord2f(1, 0);  // top right
         glVertex2f(tileX + tileWidth, y + height);
-        glTexCoord2f(0, 0);  // Top-left
+        glTexCoord2f(0, 0);  // top left
         glVertex2f(tileX, y + height);
         glEnd();
     }
@@ -72,17 +72,17 @@ void Platform::draw()
     glDisable(GL_TEXTURE_2D);
 }
 
-// Check if an object is on top of the platform
+// check if object is on top of the platform
 bool Platform::isOnTop(float px, float py, float pw, float ph) const
 {
-    // Check if the bottom of the object is at or near the top of the platform
+    // check if bottom of the object is at or near top of the platform
     float objectBottom = py;
     float platformTop = y + height;
     
-    // Check horizontal overlap
+    // check horizontal overlap
     bool horizontalOverlap = (px + pw > x) && (px < x + width);
     
-    // Check if object is standing on platform (with small tolerance)
+    // check if object is standing on platform (with small tolerance)
     bool onTop = (objectBottom >= platformTop - 5) && (objectBottom <= platformTop + 5);
     
     return horizontalOverlap && onTop;

@@ -4,7 +4,7 @@
 #include "Platform.h"
 #include <vector>
 
-// Forward declaration to avoid circular includes
+// forward declaration to avoid circular includes
 class Player;
 
 class Fireball {
@@ -16,7 +16,7 @@ private:
     bool active;
     bool facingRight;
     GLuint textureID;
-    Player* owner; // The player who shot the fireball
+    Player* owner; // the player who shot the fireball
 
     // Physics constants
     const float GRAVITY = 0.5f;
@@ -26,16 +26,16 @@ private:
 public:
     Fireball(Player* owner, float startX, float startY, bool directionRight);
     
-    void update(Player* enemy); // Updated to take enemy
+    void update(Player* enemy); // updated to take enemy
     void draw();
     
     bool isActive() const { return active; }
     void deactivate() { active = false; }
     
-    // Check if this fireball hits a specific player
+    // check if fireball hits a specific player
     bool checkCollision(Player* p);
 
-    // Getters
+    // getters
     float getX() const { return x; }
     float getY() const { return y; }
     float getW() const { return width; }

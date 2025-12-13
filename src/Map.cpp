@@ -1,16 +1,16 @@
 #include "../include/Map.h"
 #include <iostream>
 
-// Initialize static instance pointer to nullptr
+// initialize static instance pointer to nullptr
 Map* Map::instance = nullptr;
 
-// Private constructor
+// private constructor
 Map::Map(const char* imagePath, int screenWidth, int screenHeight)
 {
     width = screenWidth;
     height = screenHeight;
     
-    // Load the map texture
+    // load the map texture
     textureID = TextureUtils::loadTexture(imagePath);
     
     if (textureID == 0)
@@ -22,12 +22,12 @@ Map::Map(const char* imagePath, int screenWidth, int screenHeight)
         std::cout << "Map loaded successfully from: " << imagePath << std::endl;
     }
     
-    // Initialize default platforms
+    // initialize default platforms
     addPlatform(new Platform(400, 350, 400, 60, "./assets/Maps/Original Map/Platform.png"));
     addPlatform(new Platform(1100, 350, 400, 60, "./assets/Maps/Original Map/Platform.png"));
 }
 
-// Get the singleton instance
+// get the singleton instance
 Map* Map::getInstance(const char* imagePath, int screenWidth, int screenHeight)
 {
     if (instance == nullptr)
@@ -37,18 +37,18 @@ Map* Map::getInstance(const char* imagePath, int screenWidth, int screenHeight)
     return instance;
 }
 
-// Destroy the singleton instance
+// destroy the singleton instance
 void Map::destroyInstance()
 {
     if (instance != nullptr)
     {
-        // Clean up texture
+        // clean up texture
         if (instance->textureID != 0)
         {
             glDeleteTextures(1, &instance->textureID);
         }
         
-        // Clean up platforms
+        // clean up platforms
         for (Platform* platform : instance->platforms)
         {
             delete platform;
@@ -60,14 +60,14 @@ void Map::destroyInstance()
     }
 }
 
-// Draw the map as background
+// draw the map as background
 void Map::draw()
 {
     if (textureID == 0)
     {
-        // If texture failed to load, draw a sky blue background
+        // if texture failed to load, draw a sky blue background
         glDisable(GL_TEXTURE_2D);
-        glColor3f(0.53f, 0.81f, 0.92f); // Sky blue
+        glColor3f(0.53f, 0.81f, 0.92f); // sky blue
         glBegin(GL_QUADS);
         glVertex2f(0, 0);
         glVertex2f(width, 0);
@@ -77,50 +77,50 @@ void Map::draw()
     }
     else
     {
-        // Enable texturing
+        // enable texturing
         glEnable(GL_TEXTURE_2D);
         glBindTexture(GL_TEXTURE_2D, textureID);
-        glColor3f(1.0f, 1.0f, 1.0f); // White color to show texture as-is
+        glColor3f(1.0f, 1.0f, 1.0f); // white color to show texture as is
         
-        // Draw the background quad covering the entire screen
+        // draw the background quad covering the entire screen
         glBegin(GL_QUADS);
-        glTexCoord2f(0, 1);  // Bottom-left of texture
+        glTexCoord2f(0, 1);  // bottom left of texture
         glVertex2f(0, 0);
-        glTexCoord2f(1, 1);  // Bottom-right of texture
+        glTexCoord2f(1, 1);  // bottom right of texture
         glVertex2f(width, 0);
-        glTexCoord2f(1, 0);  // Top-right of texture
+        glTexCoord2f(1, 0);  // top right of texture
         glVertex2f(width, height);
-        glTexCoord2f(0, 0);  // Top-left of texture
+        glTexCoord2f(0, 0);  // top left of texture
         glVertex2f(0, height);
         glEnd();
         
         glDisable(GL_TEXTURE_2D);
     }
     
-    // Draw platforms
+    // draw platforms
     for (Platform* platform : platforms)
     {
         platform->draw();
     }
 }
 
-// Draw the map with custom scale (for zoom effects)
+// draw the map with custom scale (for zoom effects)
 void Map::draw(float scale)
 {
-    // Calculate expanded dimensions to fill screen when zoomed out
-    // When scale is 0.5, we need 2x the size to fill the screen
+    // calculate expanded dimensions to fill screen when zoomed out
+    // when scale is 0.5 we need 2x the size to fill the screen
     float expandedWidth = width / scale;
     float expandedHeight = height / scale;
     
-    // Calculate offset to keep map centered
+    // calculate offset to keep map centered
     float offsetX = (expandedWidth - width) / 2.0f;
     float offsetY = (expandedHeight - height) / 2.0f;
     
     if (textureID == 0)
     {
-        // If texture failed to load, draw a sky blue background
+        // if texture failed to load draw sky blue background
         glDisable(GL_TEXTURE_2D);
-        glColor3f(0.53f, 0.81f, 0.92f); // Sky blue
+        glColor3f(0.53f, 0.81f, 0.92f); // sky blue
         glBegin(GL_QUADS);
         glVertex2f(-offsetX, -offsetY);
         glVertex2f(expandedWidth - offsetX, -offsetY);
@@ -130,12 +130,12 @@ void Map::draw(float scale)
     }
     else
     {
-        // Enable texturing
+        // enable texturing
         glEnable(GL_TEXTURE_2D);
         glBindTexture(GL_TEXTURE_2D, textureID);
         glColor3f(1.0f, 1.0f, 1.0f);
         
-        // Draw the expanded background quad
+        // draw the expanded background quad
         glBegin(GL_QUADS);
         glTexCoord2f(0, 1);
         glVertex2f(-offsetX, -offsetY);
@@ -150,14 +150,14 @@ void Map::draw(float scale)
         glDisable(GL_TEXTURE_2D);
     }
     
-    // Draw platforms
+    // draw platforms
     for (Platform* platform : platforms)
     {
         platform->draw();
     }
 }
 
-// Platform methods
+// platform methods
 void Map::addPlatform(Platform* platform)
 {
     platforms.push_back(platform);
@@ -168,14 +168,14 @@ const std::vector<Platform*>& Map::getPlatforms() const
     return platforms;
 }
 
-// Update dimensions when window is resized
+// update dimensions when window is resized
 void Map::setDimensions(int w, int h)
 {
     width = w;
     height = h;
 }
 
-// Static reshape handler for GLUT
+// static reshape handler for GLUT
 void Map::handleReshape(int w, int h)
 {
     glViewport(0, 0, w, h);

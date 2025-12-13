@@ -41,17 +41,17 @@ void Bomb::throwBomb(bool facingRight)
     if (state == HELD && holder != nullptr)
     {
         state = THROWN;
-        holder->holdBomb(nullptr); // Release from player
+        holder->holdBomb(nullptr); // release from player
         Player::playSound("./assets/Sounds/bomb-throw.mp3");
         
-        // Throw physics
+        // throw physics
         float throwSpeedX = 10.0f;
         float throwSpeedY = 10.0f;
         
         velocityX = facingRight ? throwSpeedX : -throwSpeedX;
         velocityY = throwSpeedY;
         
-        // Start slightly in front/above
+        // start slightly in front/above
         x = holder->getX() + (facingRight ? holder->getW() : -width);
         y = holder->getY() + holder->getH() / 2;
         
@@ -106,23 +106,22 @@ void Bomb::update(float deltaTime)
     {
         if (holder != nullptr)
         {
-            // Follow player
-            // Center above player head or in hand?
-            // Let's put it above head like Mario usually does
+            // follow player
+            // center above player head
             x = holder->getX() + (holder->getW() - width) / 2;
             y = holder->getY() + holder->getH();
         }
         return;
     }
 
-    // Physics for FALLING and THROWN
+    // physics for falling and thrown
     if (state == FALLING || state == THROWN)
     {
         velocityY -= gravity;
         x += velocityX;
         y += velocityY;
         
-        // Map Collision
+        // map collision
         Map* map = Map::getInstance();
         bool hitGround = false;
         float groundLevel = 145.0f;
@@ -155,9 +154,9 @@ void Bomb::update(float deltaTime)
         {
             if (state == THROWN)
             {
-                // Explode on impact!
+                // explode on impact
                 state = EXPLODING;
-                // Play explosion sound?
+                // play explosion sound
                 Player::playSound("./assets/Sounds/bomb.mp3");
             }
             else
@@ -169,11 +168,11 @@ void Bomb::update(float deltaTime)
         }
     }
     
-    // Screen bounds
+    // screen bounds
     int screenWidth = glutGet(GLUT_WINDOW_WIDTH);
     if (x < -50 || x > screenWidth + 50 || y < -50)
     {
-        if (state == THROWN) state = DEAD; // Fell off world
+        if (state == THROWN) state = DEAD; // fell off world
     }
 }
 

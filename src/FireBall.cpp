@@ -35,12 +35,12 @@ bool Fireball::checkCollision(Player* p) {
 void Fireball::update(Player* enemy) {
     if (!active) return;
 
-    // 1. Move
+    // 1. move
     x += velocityX;
     velocityY -= GRAVITY;
     y += velocityY;
 
-    // 2. Map Collision
+    // 2. map Collision
     float groundLevel = 145.0f;
     bool hitGround = false;
 
@@ -68,7 +68,7 @@ void Fireball::update(Player* enemy) {
         velocityY = BOUNCE_FORCE;
     }
 
-    // 3. Enemy Collision
+    // 3. enemy Collision
     if (enemy != nullptr && checkCollision(enemy)) {
         if (owner) {
             owner->addScore(100);
@@ -76,11 +76,10 @@ void Fireball::update(Player* enemy) {
         enemy->loseLife();
         active = false;
         
-        // CHANGED: Use Player::playSound
         return; 
     }
 
-    // 4. Screen Bounds
+    // 4. screen Bounds
     int screenWidth = glutGet(GLUT_WINDOW_WIDTH);
     if (x < 0 || x > screenWidth) {
         active = false;

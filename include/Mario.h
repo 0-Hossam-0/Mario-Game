@@ -8,23 +8,23 @@ private:
     static Mario* instance;
     Mario(float startX, float startY);
 
-    // Textures
+    // textures
     GLuint idleTexture;
     GLuint moveTexture1;
     GLuint moveTexture2;
     GLuint jumpTexture;
     GLuint jumpTexture1;
-    GLuint deadTexture; // ADDED: Dead sprite texture
+    GLuint deadTexture; // added dead sprite texture
     GLuint holdTexture;
 
     GLuint holdStandTexture;
 
-    // Golden Textures
+    // golden textures
     GLuint goldenIdleTexture;
     GLuint goldenJumpTexture;
     GLuint goldenMoveTexture;
 
-    // Animation state
+    // animation state
     bool isMoving;
     bool facingRight;
     int animationFrame;

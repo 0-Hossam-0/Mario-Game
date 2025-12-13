@@ -5,7 +5,7 @@ Menu::Menu(int w, int h) {
     screenWidth = w;
     screenHeight = h;
     selectedOption = 0;
-    // Load background texture (using the map image for now)
+    // load background texture (using the map image)
     backgroundTexture = TextureUtils::loadTexture("./assets/Maps/Original Map/original.jpg");
 }
 
@@ -22,9 +22,9 @@ void Menu::setDimensions(int w, int h) {
 
 void Menu::drawText(float x, float y, const char* text, bool selected) {
     if (selected) {
-        glColor3f(1.0f, 1.0f, 0.0f); // Yellow
+        glColor3f(1.0f, 1.0f, 0.0f); // yellow
     } else {
-        glColor3f(0.7f, 0.7f, 0.7f); // Light Gray
+        glColor3f(0.7f, 0.7f, 0.7f); // light Gray
     }
     
     glRasterPos2f(x, y);
@@ -34,7 +34,7 @@ void Menu::drawText(float x, float y, const char* text, bool selected) {
 }
 
 void Menu::draw() {
-    // Draw Background Image
+    // draw background image
     if (backgroundTexture != 0)
     {
         glEnable(GL_TEXTURE_2D);
@@ -49,10 +49,10 @@ void Menu::draw() {
         glDisable(GL_TEXTURE_2D);
     }
 
-    // Draw semi-transparent background overlay (Darker to make text readable)
+    // draw semi transparent background overlay (darker to make text readable)
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glColor4f(0.0f, 0.0f, 0.0f, 0.5f); // Reduced opacity since we have an image
+    glColor4f(0.0f, 0.0f, 0.0f, 0.5f); // reduced opacity since we have image
     glBegin(GL_QUADS);
     glVertex2f(0, 0);
     glVertex2f(screenWidth, 0);
@@ -63,7 +63,7 @@ void Menu::draw() {
     float centerX = screenWidth / 2.0f;
     float centerY = screenHeight / 2.0f;
 
-    // Draw Title
+    // draw Title
     glColor3f(1.0f, 1.0f, 1.0f);
     const char* title = "MAIN MENU";
     glRasterPos2f(centerX - 60, centerY + 150);
@@ -71,11 +71,10 @@ void Menu::draw() {
         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, title[i]);
     }
 
-    // Draw Options
-    // Center text approximation: 1 VS 1 is about 60px wide
+    // center text approximation 1 vs 1 is about 60px wide
     drawText(centerX - 40, centerY, "1 VS 1", true);
     
-    // Instructions
+    // instructions
     glColor3f(1.0f, 1.0f, 1.0f);
     const char* instr = "Press ENTER to start";
     glRasterPos2f(centerX - 60, centerY - 150);
@@ -85,7 +84,7 @@ void Menu::draw() {
 }
 
 void Menu::handleInput(unsigned char key) {
-    // No selection needed anymore
+
 }
 
 int Menu::getSelectedOption() const {

@@ -1,15 +1,12 @@
 #include "../include/Player.h"
 #include "../include/Map.h"
 #include "../include/TextureUtils.h"
-// #include <windows.h> // REMOVED: Not compatible with Linux
-// #include <mmsystem.h> // REMOVED: Not compatible with Linux
+// #include <windows.h> // Not compatible with Linux
+// #include <mmsystem.h> // Not compatible with Linux
 #include <string>
 #include <iostream>
 
-// ---------------------------------------------------------
 // PLAYER BASE CLASS IMPLEMENTATION
-// ---------------------------------------------------------
-
 bool Player::isSuddenDeathMode = false;
 
 void Player::setSuddenDeathMode(bool active) {
@@ -36,8 +33,8 @@ Player::Player(float startX, float startY, float w, float h, const char *imagePa
   isOnGround = true; 
   isSprinting = false;
   
-  // Cooldown
-  shootCooldown = 0.26f; // 0.26 second cooldown
+  // cooldown
+  shootCooldown = 0.26f; // 0.26 second
   shootTimer = 0.0f;
   invulnerableTimer = 0.0f;
   
@@ -57,8 +54,8 @@ Player::~Player()
   }
 }
 
-// CHANGED: Stubbed for Linux
-// CHANGED: Linux Sound Player using gst-play-1.0
+// stubbed for Linux
+// linux sound Player using gst play 1.0
 void Player::playSound(const char* path)
 {
     std::string command = "gst-play-1.0 \"" + std::string(path) + "\" > /dev/null 2>&1 &";
@@ -179,11 +176,11 @@ void Player::loseLife()
   if (hud != nullptr) {
       if (hud->getLives() > 0) {
           if (isSuddenDeathMode) {
-              hud->setLives(0); // Instant death
+              hud->setLives(0); // instant death
           } else {
               hud->loseLife();
           }
-          invulnerableTimer = 2.0f; // 2 seconds invulnerability
+          invulnerableTimer = 2.0f; // 2 second invulnerability
           Player::playSound("./assets/Sounds/mario-power-down-ringtone.mp3");
       }
   }
@@ -262,8 +259,8 @@ void Player::setHUDPos(float x, float y)
 void Player::activateGolden()
 {
     isGolden = true;
-    goldenTimer = 10.0f; // 10 seconds duration
-    invulnerableTimer = 10.0f; // Also invulnerable
+    goldenTimer = 10.0f; // 10 second
+    invulnerableTimer = 10.0f; // also invulnerable
     Player::playSound("./assets/Sounds/power-up.mp3");
 }
 

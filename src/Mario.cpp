@@ -61,12 +61,12 @@ void Mario::destroyInstance()
 void Mario::draw()
 {
   if (isInvulnerable() && !isGolden) {
-      // Flash every 0.1 seconds
+      // flash every 0.1 seconds
       int flash = (int)(invulnerableTimer * 10.0f);
       if (flash % 2 == 0) {
           drawHUD();
           for (Fireball* fb : fireballs) fb->draw();
-          return; // Skip drawing sprite
+          return; // skip drawing sprite
       }
   }
 

@@ -13,11 +13,11 @@
 #include "../include/Bomb.h"
 #include "../include/Star.h"
 
-// The STB_IMAGE_IMPLEMENTATION must be defined in exactly ONE .cpp file.
+//  defining STB_IMAGE_IMPLEMENTATION 
 #define STB_IMAGE_IMPLEMENTATION
 #include "../include/stb_image.h"
 
-// ... GLOBAL OBJECTS ...
+// global objects
 Mario *mario;
 Luigi *luigi;
 Map *gameMap;
@@ -25,11 +25,11 @@ Menu *mainMenu;
 
 std::vector<Bomb*> bombs;
 float bombSpawnTimer = 0.0f;
-float bombSpawnInterval = 5.0f; // Spawn every 5 seconds
+float bombSpawnInterval = 5.0f; // spawn every 5 seconds
 
 std::vector<Star*> stars;
 float starSpawnTimer = 0.0f;
-float starSpawnInterval = 15.0f; // Spawn every 15 seconds
+float starSpawnInterval = 15.0f; // spawn every 15 seconds
 
 void updateStars(float deltaTime) {
     // Spawning
@@ -42,21 +42,21 @@ void updateStars(float deltaTime) {
         float startX, speed;
         if (rand() % 2 == 0) {
             startX = -50.0f;
-            speed = 100.0f; // Move right
+            speed = 100.0f; // move right
         } else {
             startX = screenWidth + 50.0f;
-            speed = -100.0f; // Move left
+            speed = -100.0f; // move left
         }
         
-        float randomY = 150.0f + (rand() % 200); // Random height
+        float randomY = 150.0f + (rand() % 200); // random height
         stars.push_back(new Star(startX, randomY, speed));
     }
 
-    // Update & Cleanup
+    // update & cleanup
     for (int i = 0; i < stars.size(); i++) {
         stars[i]->update(deltaTime);
         
-        // Check collision
+        // check collision
         if (mario && stars[i]->checkCollision(mario)) {
             mario->activateGolden();
             stars[i]->deactivate();
@@ -66,24 +66,10 @@ void updateStars(float deltaTime) {
             stars[i]->deactivate();
         }
 
-        // Remove if inactive or far off screen
+        // remove if inactive or far off screen
         int screenWidth = glutGet(GLUT_WINDOW_WIDTH);
         if (screenWidth == 0) screenWidth = 800;
         
-        // Simple bounds check to remove stars that flew away
-        // Assuming star width is small, checking if x < -100 or x > width + 100
-        // Also remove if inactive (collected)
-        // Note: Star doesn't expose x directly but update moves it. 
-        // We can add a getter or just rely on time/distance logic, 
-        // but checking isActive is enough for collected stars.
-        // For off-screen, we can check inside Star::update or here if we had access.
-        // Let's just rely on a simple lifetime or check if it's been running too long?
-        // Actually, let's just remove if !isActive() for now (collected).
-        // For off-screen, I'll modify Star to deactivate itself if off screen? 
-        // I didn't implement that in Star.cpp yet. 
-        // I'll just leave them for now or implement a simple check if I can access x.
-        // Star doesn't expose getX(). I should have added getters.
-        // I'll just remove if !isActive().
         
         if (!stars[i]->isActive()) {
             delete stars[i];
@@ -94,7 +80,7 @@ void updateStars(float deltaTime) {
 }
 
 void updateBombs(float deltaTime) {
-    // Spawning
+    // spawning
     if (bombs.empty()) {
         bombSpawnTimer += deltaTime;
         if (bombSpawnTimer >= bombSpawnInterval) {
@@ -106,13 +92,13 @@ void updateBombs(float deltaTime) {
         }
     }
 
-    // Update & Cleanup
+    // update & cleanup
     for (int i = 0; i < bombs.size(); i++) {
         bombs[i]->update(deltaTime);
         
-        // Check explosion damage
+        // check explosion damage
         if (bombs[i]->getState() == Bomb::EXPLODING) {
-             // Simple distance check for damage
+             // simple distance check for damage
              if (mario && bombs[i]->checkCollision(mario) && !bombs[i]->hasHit(mario)) {
                  mario->loseLife();
                  bombs[i]->markHit(mario);
@@ -164,10 +150,8 @@ float marioHUDTargetX = 20.0f;
 float luigiHUDStartX = 0.0f;  
 float luigiHUDTargetX = 0.0f; 
 
-// ------------------------------
-// HELPER FUNCTIONS
-// ------------------------------
 
+// HELPER FUNCTIONS
 void drawText(float x, float y, const std::string &text, void *font = GLUT_BITMAP_HELVETICA_18)
 {
     glRasterPos2f(x, y);
@@ -176,19 +160,16 @@ void drawText(float x, float y, const std::string &text, void *font = GLUT_BITMA
 
 void playHurryUpSound()
 {
-    // CHANGED
     Player::playSound("./assets/Sounds/hurry-up.mp3");
 }
 
 void playPauseSound()
 {
-    // CHANGED
     Player::playSound("./assets/Sounds/pause.mp3");
 }
 
 void playDeathSound()
 {
-    // CHANGED
     Player::playSound("./assets/Sounds/life-lost.mp3");
 }
 
@@ -248,7 +229,6 @@ void startPvPMatch()
     mario->setHUDPos(marioHUDStartX, screenHeight - 90);
     luigi->setHUDPos(luigiHUDStartX, screenHeight - 90);
 
-    // CHANGED
     Player::playSound("./assets/Sounds/castle-clear.mp3");
 
     lastTime = glutGet(GLUT_ELAPSED_TIME);

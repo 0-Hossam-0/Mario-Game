@@ -8,22 +8,22 @@ private:
     static Luigi* instance;
     Luigi(float startX, float startY);
 
-    // Textures
+    // textures
     GLuint idleTexture;
     GLuint moveTexture1;
     GLuint moveTexture2;
     GLuint jumpTexture;
     GLuint jumpTexture1;
-    GLuint deadTexture; // ADDED: Dead sprite
+    GLuint deadTexture; // added: dead sprite
     GLuint holdTexture;
 
     GLuint holdStandTexture;
     
-    // Golden Texture
+    // golden Texture
     GLuint goldenTexture;
     GLuint goldenMoveTexture;
 
-    // Animation state
+    // animation state
     bool isMoving;
     bool facingRight;
     int animationFrame;

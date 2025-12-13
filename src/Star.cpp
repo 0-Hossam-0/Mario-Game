@@ -6,8 +6,8 @@ Star::Star(float startX, float startY, float speed) {
     x = startX;
     y = startY;
     originalY = startY;
-    width = 50.0f;  // Increased size
-    height = 50.0f; // Increased size
+    width = 50.0f;  // increased size
+    height = 50.0f; // increased size
     velocityX = speed;
     active = true;
     bobTimer = 0.0f;
@@ -15,25 +15,19 @@ Star::Star(float startX, float startY, float speed) {
 }
 
 Star::~Star() {
-    // Texture is managed globally or we can delete it if we want, 
-    // but usually TextureUtils might cache it. 
-    // For now, we won't delete it to avoid reloading issues if multiple stars use it,
-    // unless we implement a resource manager. 
-    // Given the simple scope, we can just leave it or delete if we are sure.
-    // Let's not delete it here to be safe.
+    // Texture is managed globally or delete it
+    // but usually textureutils might cache it 
+    // dont delete it to avoid reloading issues if multiple stars use it
+    // unless we implement a resource manager
 }
 
 void Star::update(float deltaTime) {
     if (!active) return;
     x += velocityX * deltaTime;
     
-    // Bobbing animation
-    bobTimer += deltaTime * 5.0f; // Speed of bobbing
-    y = originalY + sin(bobTimer) * 20.0f; // Amplitude of 20 pixels
-
-    // Deactivate if off screen (assuming screen width 800-ish, but let's be generous)
-    // We can check boundaries in main or here if we pass screen width.
-    // For now, just update.
+    // bobbing animation
+    bobTimer += deltaTime * 5.0f; // speed of bobbing
+    y = originalY + sin(bobTimer) * 20.0f; // amplitude of 20 pixel
 }
 
 void Star::draw() {

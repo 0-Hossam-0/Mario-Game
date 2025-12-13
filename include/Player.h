@@ -11,7 +11,7 @@ protected:
     float speed;
     GLuint textureID;
     
-    // Physics variables
+    // physics variables
     float velocityY;
     float gravity;
     float jumpStrength;
@@ -24,14 +24,14 @@ protected:
     bool keyStates[256];
     HUD* hud;
 
-    // Fireball cooldown
+    // fireball cooldown
     float shootCooldown;
     float shootTimer;
 
-    // Invulnerability
+    // invulnerability
     float invulnerableTimer;
 
-    // Golden State
+    // golden State
     bool isGolden;
     float goldenTimer;
 
@@ -57,14 +57,14 @@ public:
     int getScore() const;
     int getLives() const;
     
-    // CHANGED: Static helper to play sound on Windows
+    // Static helper to play sound on Windows
     static void playSound(const char* path); 
 
-    // Sudden Death Mode
+    // sudden death mode
     static bool isSuddenDeathMode;
     static void setSuddenDeathMode(bool active); 
 
-    // Getters/Setters
+    // getters/setters
     float getX() const;
     float getY() const;
     float getW() const;
@@ -78,8 +78,8 @@ public:
     
     virtual bool isFacingRight() const { return true; }
 
-    // Bomb interaction
-    void holdBomb(void* b) { heldBomb = b; } // Using void* to avoid circular include issues in header for now, or forward declare
+    // bomb interaction
+    void holdBomb(void* b) { heldBomb = b; } // using void* to avoid circular include issues in header for now or forward declare
     void* getHeldBomb() const { return heldBomb; }
     
     bool isInvulnerable() const { return invulnerableTimer > 0.0f; }
@@ -89,5 +89,5 @@ public:
     bool getIsGolden() const { return isGolden; }
 
 protected:
-    void* heldBomb; // Stored as void* to avoid circular dependency complexity in this step, cast in cpp
+    void* heldBomb; // stored as void* to avoid circular dependency complexity
 };

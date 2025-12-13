@@ -5,7 +5,7 @@
 
 class Menu {
 private:
-    int selectedOption; // 0 for 1VS1
+    int selectedOption; // 0 for 1vs1
     int screenWidth, screenHeight;
     GLuint backgroundTexture;
     void drawText(float x, float y, const char* text, bool selected);
